@@ -85,7 +85,7 @@
             transform-origin: 0 0;
             touch-action: none;
             user-select: none;
-            /* ❌ No width/height/object-fit — let natural size + transform handle it */
+            /* No width/height — let natural size + transform handle it */
         }
 
         #frame {
@@ -384,17 +384,15 @@
             const img = new Image();
             img.onload = () => {
                 userPhoto.src = src;
-                // Center the image initially
                 setTimeout(() => {
                     const containerWidth = photoWrapper.clientWidth;
                     const containerHeight = photoWrapper.clientHeight;
                     const imgWidth = img.width;
                     const imgHeight = img.height;
 
-                    // Fit image inside container while maintaining aspect ratio
                     const scaleX = containerWidth / imgWidth;
                     const scaleY = containerHeight / imgHeight;
-                    const fitScale = Math.min(scaleX, scaleY) * 0.9; // 90% of container
+                    const fitScale = Math.min(scaleX, scaleY) * 0.95;
 
                     scale = fitScale;
                     posX = (containerWidth - imgWidth * scale) / 2;
@@ -461,6 +459,7 @@
             }
         });
 
+        // ✅ FIXED DOWNLOAD LOGIC — WORKS ON MOBILE & DESKTOP
         downloadButton.addEventListener('click', () => {
             if (!userPhoto.src || userPhoto.src === window.location.href) {
                 alert('দয়া করে প্রথমে একটি ছবি আপলোড করুন!');
@@ -478,23 +477,19 @@
             img.src = userPhoto.src;
 
             img.onload = () => {
-                // Get current container size (used as reference)
-                const containerSize = 400; // matches #container max-width
-                const scaleToOutput = outputSize / containerSize;
+                // ✅ Use ACTUAL current container width (not hardcoded 400)
+                const containerWidth = photoWrapper.clientWidth;
+                const scaleToOutput = outputSize / containerWidth;
 
                 const drawX = posX * scaleToOutput;
                 const drawY = posY * scaleToOutput;
                 const drawWidth = img.width * scale * scaleToOutput;
                 const drawHeight = img.height * scale * scaleToOutput;
 
-                // Draw white background
                 ctx.fillStyle = 'white';
                 ctx.fillRect(0, 0, outputSize, outputSize);
-
-                // Draw user photo at exact position & scale
                 ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
 
-                // Draw frame on top
                 const frameImg = new Image();
                 frameImg.crossOrigin = 'anonymous';
                 frameImg.src = frame.src;
@@ -505,7 +500,6 @@
                 };
 
                 frameImg.onerror = () => {
-                    // Frame failed? Still download without it
                     triggerDownload(canvas);
                 };
             };
