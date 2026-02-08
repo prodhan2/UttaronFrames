@@ -1,498 +1,621 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Uttaron PHOTO Frames</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      background: linear-gradient(135deg, #f5f7fa 0%, #e6f4ea 100%);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      color: #333;
-      touch-action: none;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>উত্তরণ PHOTO Frames</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e6f4ea 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            touch-action: none;
+            padding: 0;
+        }
 
-    .preview-area {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+        /* Bangladesh-themed Header */
+        .page-header {
+            background: linear-gradient(90deg, #006A4E 0%, #D21034 100%);
+            color: white;
+            text-align: center;
+            padding: 16px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
 
-    #container {
-      position: relative;
-      width: 80vmin;
-      height: 80vmin;
-      max-width: 400px;
-      max-height: 400px;
-      margin-bottom: 20px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-      border-radius: 10px;
-      background: white;
-      overflow: hidden;
-    }
+        .page-header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
 
-    #photo-wrapper {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: white;
-      overflow: hidden;
-      border-radius: 10px;
-      z-index: 1;
-    }
+        .main-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 40px;
+            flex-wrap: wrap;
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
 
-    #user-photo {
-      position: absolute;
-      top: 0;
-      left: 0;
-      transform-origin: 0 0;
-      touch-action: none;
-      user-select: none;
-    }
+        .preview-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            min-width: 300px;
+        }
 
-    #frame {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      border-radius: 10px;
-      z-index: 2;
-    }
+        #container {
+            position: relative;
+            width: 80vmin;
+            height: 80vmin;
+            max-width: 400px;
+            max-height: 400px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border-radius: 16px;
+            background: white;
+            overflow: hidden;
+            border: 2px solid #e0e0e0;
+        }
 
-    .controls {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      margin: 15px 0;
-      width: 100%;
-      max-width: 500px;
-      flex-wrap: wrap;
-    }
+        #photo-wrapper {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            overflow: hidden;
+            border-radius: 16px;
+            z-index: 1;
+        }
 
-    .control-text-btn {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 25px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-      font-size: 16px;
-      font-weight: 600;
-      color: white;
-      min-width: 140px;
-      text-align: center;
-    }
+        #user-photo {
+            position: absolute;
+            top: 0; left: 0;
+            transform-origin: 0 0;
+            touch-action: none;
+            user-select: none;
+            /* ❌ No width/height/object-fit — let natural size + transform handle it */
+        }
 
-    .upload-btn,
-    .download-btn {
-      background: #006A4E;
-    }
+        #frame {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            border-radius: 16px;
+            z-index: 2;
+        }
 
-    .upload-btn:hover,
-    .download-btn:hover {
-      background: #005a40;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 15px rgba(0, 106, 78, 0.4);
-    }
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 15px 0;
+            width: 100%;
+            max-width: 500px;
+            flex-wrap: wrap;
+        }
 
-    #upload { display: none; }
+        .control-text-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            min-width: 140px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
 
-    #zoom-level {
-      margin-top: 10px;
-      font-size: 16px;
-      color: #333;
-      text-align: center;
-      font-weight: 500;
-      background: rgba(255, 255, 255, 0.7);
-      padding: 5px 15px;
-      border-radius: 20px;
-    }
+        .upload-btn, .download-btn {
+            background: #006A4E;
+        }
 
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.8);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-    }
+        .upload-btn:hover, .download-btn:hover {
+            background: #005a40;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(0, 106, 78, 0.4);
+        }
 
-    .modal-content {
-      background-color: white;
-      padding: 20px;
-      border-radius: 10px;
-      width: 90%;
-      max-width: 600px;
-      max-height: 90vh;
-      overflow: auto;
-      text-align: center;
-    }
+        #upload { display: none; }
 
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 15px;
-    }
+        #zoom-level {
+            margin-top: 10px;
+            font-size: 16px;
+            color: #333;
+            text-align: center;
+            font-weight: 500;
+            background: rgba(255, 255, 255, 0.85);
+            padding: 6px 16px;
+            border-radius: 20px;
+            backdrop-filter: blur(4px);
+        }
 
-    .modal-header h2 {
-      color: #006A4E;
-    }
+        .instructions {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+            max-width: 380px;
+            line-height: 1.6;
+            display: none;
+        }
 
-    .close-btn {
-      background: none;
-      border: none;
-      font-size: 24px;
-      cursor: pointer;
-      color: #666;
-    }
+        .instructions h2 {
+            color: #006A4E;
+            margin-bottom: 18px;
+            font-size: 1.4rem;
+        }
 
-    #crop-image-container {
-      width: 100%;
-      height: 300px;
-      margin-bottom: 20px;
-      background-color: #f0f0f0;
-      position: relative;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+        .instructions ul {
+            list-style: none;
+            padding-left: 0;
+        }
 
-    .loading-spinner {
-      width: 40px;
-      height: 40px;
-      border: 4px solid rgba(0, 0, 0, 0.1);
-      border-left-color: #006A4E;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      display: none;
-    }
+        .instructions li {
+            margin-bottom: 14px;
+            position: relative;
+            padding-left: 28px;
+        }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
+        .instructions li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #006A4E;
+            font-weight: bold;
+        }
 
-    .crop-controls {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      margin-top: 15px;
-    }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
 
-    .crop-btn {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-weight: 600;
-    }
+        .modal-content {
+            background-color: white;
+            padding: 24px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow: auto;
+            text-align: center;
+        }
 
-    #crop-skip {
-      background-color: #9e9e9e;
-      color: white;
-    }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
 
-    #crop-confirm {
-      background-color: #006A4E;
-      color: white;
-    }
+        .modal-header h2 { color: #006A4E; }
 
-    @media (max-width: 600px) {
-      .modal-content {
-        width: 95%;
-        padding: 15px;
-      }
-      #crop-image-container {
-        height: 250px;
-      }
-    }
-  </style>
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        #crop-image-container {
+            width: 100%;
+            height: 300px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .loading-spinner {
+            width: 40px; height: 40px;
+            border: 4px solid rgba(0,0,0,0.1);
+            border-left-color: #006A4E;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .crop-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .crop-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        #crop-skip { background-color: #9e9e9e; color: white; }
+        #crop-confirm { background-color: #006A4E; color: white; }
+
+        @media (min-width: 768px) {
+            .instructions { display: block; }
+            .preview-area { align-items: flex-start; }
+        }
+
+        @media (max-width: 600px) {
+            .modal-content { width: 95%; padding: 15px; }
+            #crop-image-container { height: 250px; }
+            .page-header h1 { font-size: 1.5rem; }
+        }
+    </style>
 </head>
 <body>
-  <div class="preview-area">
-    <div id="container">
-      <div id="photo-wrapper">
-        <img id="user-photo" src="" alt="Your Photo">
-      </div>
-      <img id="frame" src="uttoron.png" alt="Frame">
+
+    <!-- Bangladesh-themed Header -->
+    <div class="page-header">
+        <h1><i class="fas fa-flag"></i> উত্তরণ PHOTO Frames</h1>
     </div>
 
-    <div class="controls">
-      <label for="upload" class="control-text-btn upload-btn">আপলোড করুন</label>
-      <input type="file" id="upload" accept="image/*">
-      <button id="download" class="control-text-btn download-btn">ডাউনলোড করুন</button>
+    <div class="main-container">
+        <!-- Instructions (desktop only) -->
+        <div class="instructions">
+            <h2>কীভাবে ব্যবহার করবেন</h2>
+            <ul>
+                <li>“আপলোড করুন” বাটনে ক্লিক করে আপনার ছবি সিলেক্ট করুন</li>
+                <li>ছবি আপলোডের পর ক্রপ করতে পারেন অথবা সরাসরি Skip করুন</li>
+                <li>মাউস দিয়ে ছবি টেনে সরান (drag)</li>
+                <li>মাউসের স্ক্রল দিয়ে জুম ইন/আউট করুন</li>
+                <li>ফ্রেমের ভিতরে ছবি পছন্দমতো অ্যাডজাস্ট করুন</li>
+                <li>“ডাউনলোড করুন” বাটনে ক্লিক করে ফ্রেমসহ ছবি সেভ করুন</li>
+            </ul>
+        </div>
+
+        <!-- Preview Area -->
+        <div class="preview-area">
+            <div id="container">
+                <div id="photo-wrapper">
+                    <img id="user-photo" alt="Your Photo">
+                </div>
+                <img id="frame" src="uttoron.png" alt="Frame">
+            </div>
+
+            <div class="controls">
+                <label for="upload" class="control-text-btn upload-btn">
+                    <i class="fas fa-upload"></i> আপলোড করুন
+                </label>
+                <input type="file" id="upload" accept="image/*">
+                <button id="download" class="control-text-btn download-btn">
+                    <i class="fas fa-download"></i> ডাউনলোড করুন
+                </button>
+            </div>
+
+            <div id="zoom-level">Zoom: 100%</div>
+        </div>
     </div>
-    <div id="zoom-level">Zoom: 100%</div>
-  </div>
 
-  <div class="modal" id="crop-modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>Crop Your Image</h2>
-        <button class="close-btn" id="close-crop-modal">×</button>
-      </div>
-      <div id="crop-image-container">
-        <div class="loading-spinner" id="crop-loading"></div>
-        <img id="crop-image" src="" alt="Image to crop" style="display:none;">
-      </div>
-      <p>Adjust the crop area as needed, or skip to use the original image</p>
-      <div class="crop-controls">
-        <button id="crop-skip" class="crop-btn">Skip Cropping</button>
-        <button id="crop-confirm" class="crop-btn">Apply Crop</button>
-      </div>
+    <!-- Crop Modal -->
+    <div class="modal" id="crop-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>ছবি ক্রপ করুন</h2>
+                <button class="close-btn" id="close-crop-modal">×</button>
+            </div>
+            <div id="crop-image-container">
+                <div class="loading-spinner" id="crop-loading"></div>
+                <img id="crop-image" src="" alt="Image to crop" style="display:none; max-width:100%; max-height:100%;">
+            </div>
+            <p>প্রয়োজন মতো ক্রপ এরিয়া অ্যাডজাস্ট করুন, অথবা মূল ছবি ব্যবহার করতে Skip করুন</p>
+            <div class="crop-controls">
+                <button id="crop-skip" class="crop-btn">Skip Cropping</button>
+                <button id="crop-confirm" class="crop-btn">Apply Crop</button>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
-  <script>
-    const upload = document.getElementById('upload');
-    const userPhoto = document.getElementById('user-photo');
-    const photoWrapper = document.getElementById('photo-wrapper');
-    const downloadButton = document.getElementById('download');
-    const frame = document.getElementById('frame');
-    const zoomLevel = document.getElementById('zoom-level');
-    const cropModal = document.getElementById('crop-modal');
-    const cropImage = document.getElementById('crop-image');
-    const cropLoading = document.getElementById('crop-loading');
-    const closeCropModal = document.getElementById('close-crop-modal');
-    const cropSkip = document.getElementById('crop-skip');
-    const cropConfirm = document.getElementById('crop-confirm');
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <script>
+        const upload = document.getElementById('upload');
+        const userPhoto = document.getElementById('user-photo');
+        const photoWrapper = document.getElementById('photo-wrapper');
+        const downloadButton = document.getElementById('download');
+        const frame = document.getElementById('frame');
+        const zoomLevel = document.getElementById('zoom-level');
+        const cropModal = document.getElementById('crop-modal');
+        const cropImage = document.getElementById('crop-image');
+        const cropLoading = document.getElementById('crop-loading');
+        const closeCropModal = document.getElementById('close-crop-modal');
+        const cropSkip = document.getElementById('crop-skip');
+        const cropConfirm = document.getElementById('crop-confirm');
 
-    let cropper;
-    let posX = 0;
-    let posY = 0;
-    let scale = 1;
-    let isDragging = false;
-    let isPinching = false;
-    let startX, startY;
-    let initialDistance = 0;
-    let initialScale = 1;
-    let initialPx = 0;
-    let initialPy = 0;
-    let currentImageSrc = '';
+        let cropper;
+        let posX = 0;
+        let posY = 0;
+        let scale = 1;
+        let isDragging = false;
+        let isPinching = false;
+        let startX, startY;
+        let initialDistance = 0;
+        let initialScale = 1;
+        let initialPx = 0;
+        let initialPy = 0;
+        const DEFAULT_IMAGE_URL = 'https://i.postimg.cc/9Xs53GdQ/image.png';
 
-    function updateTransform() {
-      userPhoto.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
-      zoomLevel.textContent = `Zoom: ${Math.round(scale * 100)}%`;
-    }
+        function updateTransform() {
+            userPhoto.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
+            zoomLevel.textContent = `Zoom: ${Math.round(scale * 100)}%`;
+        }
 
-    upload.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          currentImageSrc = ev.target.result;
-          cropLoading.style.display = 'block';
-          cropImage.style.display = 'none';
-          cropModal.style.display = 'flex';
-          if (cropper) cropper.destroy();
-          setTimeout(() => {
-            cropImage.src = currentImageSrc;
-            cropImage.onload = () => {
-              cropLoading.style.display = 'none';
-              cropImage.style.display = 'block';
-              cropper = new Cropper(cropImage, {
-                aspectRatio: 1,
-                viewMode: 1,
-                guides: true,
-                background: false,
-                autoCropArea: 0.8
-              });
-            };
-          }, 300);
-        };
-        reader.readAsDataURL(file);
-      }
-    });
-
-    closeCropModal.addEventListener('click', () => {
-      cropModal.style.display = 'none';
-      if (cropper) cropper.destroy();
-    });
-
-    cropSkip.addEventListener('click', () => {
-      userPhoto.src = currentImageSrc;
-      cropModal.style.display = 'none';
-      if (cropper) cropper.destroy();
-    });
-
-    cropConfirm.addEventListener('click', () => {
-      if (cropper) {
-        const canvas = cropper.getCroppedCanvas({
-          width: 800,
-          height: 800,
-          imageSmoothingEnabled: true,
-          imageSmoothingQuality: 'high'
+        // Initialize with default image
+        window.addEventListener('load', () => {
+            loadImage(DEFAULT_IMAGE_URL);
         });
-        userPhoto.src = canvas.toDataURL('image/jpeg', 0.9);
-        cropModal.style.display = 'none';
-        cropper.destroy();
-      }
-    });
 
-    downloadButton.addEventListener('click', () => {
-      if (!userPhoto.src) {
-        alert('দয়া করে প্রথমে একটি ছবি আপলোড করুন!');
-        return;
-      }
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      const size = 800;
-      canvas.width = size;
-      canvas.height = size;
+        function loadImage(src) {
+            const img = new Image();
+            img.onload = () => {
+                userPhoto.src = src;
+                // Center the image initially
+                setTimeout(() => {
+                    const containerWidth = photoWrapper.clientWidth;
+                    const containerHeight = photoWrapper.clientHeight;
+                    const imgWidth = img.width;
+                    const imgHeight = img.height;
 
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.src = userPhoto.src;
-      img.onload = () => {
-        const wrapperWidth = photoWrapper.clientWidth;
-        const scaleFactor = size / wrapperWidth;
-        const scaledWidth = img.width * scale * scaleFactor;
-        const scaledHeight = img.height * scale * scaleFactor;
-        const offsetX = posX * scaleFactor;
-        const offsetY = posY * scaleFactor;
+                    // Fit image inside container while maintaining aspect ratio
+                    const scaleX = containerWidth / imgWidth;
+                    const scaleY = containerHeight / imgHeight;
+                    const fitScale = Math.min(scaleX, scaleY) * 0.9; // 90% of container
 
-        ctx.fillStyle = 'white';
-        ctx.fillRect(0, 0, size, size);
-        ctx.drawImage(img, offsetX, offsetY, scaledWidth, scaledHeight);
+                    scale = fitScale;
+                    posX = (containerWidth - imgWidth * scale) / 2;
+                    posY = (containerHeight - imgHeight * scale) / 2;
+                    updateTransform();
+                }, 50);
+            };
+            img.src = src;
+        }
 
-        const frameImg = new Image();
-        frameImg.crossOrigin = 'anonymous';
-        frameImg.src = frame.src;
-        frameImg.onload = () => {
-          ctx.drawImage(frameImg, 0, 0, size, size);
-          const link = document.createElement('a');
-          link.download = 'PHOTO_frame.png';
-          link.href = canvas.toDataURL('image/png', 1.0);
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-        };
-        frameImg.onerror = () => {
-          const link = document.createElement('a');
-          link.download = 'PHOTO_frame.png';
-          link.href = canvas.toDataURL('image/png', 1.0);
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-        };
-      };
-      img.onerror = () => {
-        alert('ছবি লোড করতে সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।');
-      }
-    });
+        upload.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    const imgSrc = ev.target.result;
+                    cropLoading.style.display = 'block';
+                    cropImage.style.display = 'none';
+                    cropModal.style.display = 'flex';
+                    if (cropper) cropper.destroy();
+                    setTimeout(() => {
+                        cropImage.src = imgSrc;
+                        cropImage.onload = () => {
+                            cropLoading.style.display = 'none';
+                            cropImage.style.display = 'block';
+                            cropper = new Cropper(cropImage, {
+                                aspectRatio: 1,
+                                viewMode: 1,
+                                guides: true,
+                                background: false,
+                                autoCropArea: 0.8
+                            });
+                        };
+                    }, 300);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
 
-    photoWrapper.addEventListener('mousedown', (e) => {
-      e.preventDefault();
-      isDragging = true;
-      startX = e.clientX;
-      startY = e.clientY;
-    });
+        closeCropModal.addEventListener('click', () => {
+            cropModal.style.display = 'none';
+            if (cropper) cropper.destroy();
+        });
 
-    document.addEventListener('mousemove', (e) => {
-      if (isDragging) {
-        const dx = e.clientX - startX;
-        const dy = e.clientY - startY;
-        posX += dx;
-        posY += dy;
-        updateTransform();
-        startX = e.clientX;
-        startY = e.clientY;
-      }
-    });
+        cropSkip.addEventListener('click', () => {
+            if (cropImage.src) {
+                loadImage(cropImage.src);
+            }
+            cropModal.style.display = 'none';
+            if (cropper) cropper.destroy();
+        });
 
-    document.addEventListener('mouseup', () => {
-      isDragging = false;
-    });
+        cropConfirm.addEventListener('click', () => {
+            if (cropper) {
+                const canvas = cropper.getCroppedCanvas({
+                    width: 800,
+                    height: 800,
+                    imageSmoothingEnabled: true,
+                    imageSmoothingQuality: 'high'
+                });
+                loadImage(canvas.toDataURL('image/jpeg', 0.92));
+                cropModal.style.display = 'none';
+                cropper.destroy();
+            }
+        });
 
-    photoWrapper.addEventListener('wheel', (e) => {
-      e.preventDefault();
-      const wrapperRect = photoWrapper.getBoundingClientRect();
-      const mouseX = e.clientX - wrapperRect.left;
-      const mouseY = e.clientY - wrapperRect.top;
-      const delta = e.deltaY < 0 ? 0.1 : -0.1;
-      const oldScale = scale;
-      scale = Math.max(0.01, Math.min(10, scale * (1 + delta)));
-      const px = (mouseX - posX) / oldScale;
-      const py = (mouseY - posY) / oldScale;
-      posX = mouseX - px * scale;
-      posY = mouseY - py * scale;
-      updateTransform();
-    });
+        downloadButton.addEventListener('click', () => {
+            if (!userPhoto.src || userPhoto.src === window.location.href) {
+                alert('দয়া করে প্রথমে একটি ছবি আপলোড করুন!');
+                return;
+            }
 
-    photoWrapper.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      if (e.touches.length === 1) {
-        isDragging = true;
-        startX = e.touches[0].clientX;
-        startY = e.touches[0].clientY;
-      } else if (e.touches.length === 2) {
-        isPinching = true;
-        const touch1 = e.touches[0];
-        const touch2 = e.touches[1];
-        initialDistance = Math.hypot(touch1.clientX - touch2.clientX, touch1.clientY - touch2.clientY);
-        initialScale = scale;
-        const wrapperRect = photoWrapper.getBoundingClientRect();
-        const midX = (touch1.clientX + touch2.clientX) / 2 - wrapperRect.left;
-        const midY = (touch1.clientY + touch2.clientY) / 2 - wrapperRect.top;
-        initialPx = (midX - posX) / scale;
-        initialPy = (midY - posY) / scale;
-      }
-    });
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const outputSize = 800;
+            canvas.width = outputSize;
+            canvas.height = outputSize;
 
-    photoWrapper.addEventListener('touchmove', (e) => {
-      e.preventDefault();
-      if (e.touches.length === 1 && isDragging) {
-        const dx = e.touches[0].clientX - startX;
-        const dy = e.touches[0].clientY - startY;
-        posX += dx;
-        posY += dy;
-        updateTransform();
-        startX = e.touches[0].clientX;
-        startY = e.touches[0].clientY;
-      } else if (e.touches.length === 2 && isPinching) {
-        const touch1 = e.touches[0];
-        const touch2 = e.touches[1];
-        const currentDistance = Math.hypot(touch1.clientX - touch2.clientX, touch1.clientY - touch2.clientY);
-        const oldScale = scale;
-        scale = Math.max(0.01, Math.min(10, initialScale * (currentDistance / initialDistance)));
-        const wrapperRect = photoWrapper.getBoundingClientRect();
-        const midX = (touch1.clientX + touch2.clientX) / 2 - wrapperRect.left;
-        const midY = (touch1.clientY + touch2.clientY) / 2 - wrapperRect.top;
-        posX = midX - initialPx * scale;
-        posY = midY - initialPy * scale;
-        updateTransform();
-      }
-    });
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.src = userPhoto.src;
 
-    photoWrapper.addEventListener('touchend', () => {
-      isDragging = false;
-      isPinching = false;
-    });
+            img.onload = () => {
+                // Get current container size (used as reference)
+                const containerSize = 400; // matches #container max-width
+                const scaleToOutput = outputSize / containerSize;
 
-    window.addEventListener('click', (e) => {
-      if (e.target === cropModal) {
-        cropModal.style.display = 'none';
-        if (cropper) cropper.destroy();
-      }
-    });
-  </script>
+                const drawX = posX * scaleToOutput;
+                const drawY = posY * scaleToOutput;
+                const drawWidth = img.width * scale * scaleToOutput;
+                const drawHeight = img.height * scale * scaleToOutput;
+
+                // Draw white background
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, outputSize, outputSize);
+
+                // Draw user photo at exact position & scale
+                ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
+
+                // Draw frame on top
+                const frameImg = new Image();
+                frameImg.crossOrigin = 'anonymous';
+                frameImg.src = frame.src;
+
+                frameImg.onload = () => {
+                    ctx.drawImage(frameImg, 0, 0, outputSize, outputSize);
+                    triggerDownload(canvas);
+                };
+
+                frameImg.onerror = () => {
+                    // Frame failed? Still download without it
+                    triggerDownload(canvas);
+                };
+            };
+
+            img.onerror = () => {
+                alert('ছবি লোড করতে সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।');
+            };
+        });
+
+        function triggerDownload(canvas) {
+            const link = document.createElement('a');
+            link.download = 'PHOTO_frame.png';
+            link.href = canvas.toDataURL('image/png', 1.0);
+            link.click();
+        }
+
+        // Mouse events
+        photoWrapper.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                posX += dx;
+                posY += dy;
+                updateTransform();
+                startX = e.clientX;
+                startY = e.clientY;
+            }
+        });
+
+        document.addEventListener('mouseup', () => { isDragging = false; });
+
+        photoWrapper.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const wrapperRect = photoWrapper.getBoundingClientRect();
+            const mouseX = e.clientX - wrapperRect.left;
+            const mouseY = e.clientY - wrapperRect.top;
+            const delta = e.deltaY < 0 ? 0.1 : -0.1;
+            const oldScale = scale;
+            scale = Math.max(0.01, Math.min(10, scale * (1 + delta)));
+            const px = (mouseX - posX) / oldScale;
+            const py = (mouseY - posY) / oldScale;
+            posX = mouseX - px * scale;
+            posY = mouseY - py * scale;
+            updateTransform();
+        });
+
+        // Touch events
+        photoWrapper.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (e.touches.length === 1) {
+                isDragging = true;
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+            } else if (e.touches.length === 2) {
+                isPinching = true;
+                const touch1 = e.touches[0];
+                const touch2 = e.touches[1];
+                initialDistance = Math.hypot(touch1.clientX - touch2.clientX, touch1.clientY - touch2.clientY);
+                initialScale = scale;
+                const wrapperRect = photoWrapper.getBoundingClientRect();
+                const midX = (touch1.clientX + touch2.clientX) / 2 - wrapperRect.left;
+                const midY = (touch1.clientY + touch2.clientY) / 2 - wrapperRect.top;
+                initialPx = (midX - posX) / scale;
+                initialPy = (midY - posY) / scale;
+            }
+        });
+
+        photoWrapper.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (e.touches.length === 1 && isDragging) {
+                const dx = e.touches[0].clientX - startX;
+                const dy = e.touches[0].clientY - startY;
+                posX += dx;
+                posY += dy;
+                updateTransform();
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+            } else if (e.touches.length === 2 && isPinching) {
+                const touch1 = e.touches[0];
+                const touch2 = e.touches[1];
+                const currentDistance = Math.hypot(touch1.clientX - touch2.clientX, touch1.clientY - touch2.clientY);
+                const oldScale = scale;
+                scale = Math.max(0.01, Math.min(10, initialScale * (currentDistance / initialDistance)));
+                const wrapperRect = photoWrapper.getBoundingClientRect();
+                const midX = (touch1.clientX + touch2.clientX) / 2 - wrapperRect.left;
+                const midY = (touch1.clientY + touch2.clientY) / 2 - wrapperRect.top;
+                posX = midX - initialPx * scale;
+                posY = midY - initialPy * scale;
+                updateTransform();
+            }
+        });
+
+        photoWrapper.addEventListener('touchend', () => {
+            isDragging = false;
+            isPinching = false;
+        });
+
+        window.addEventListener('click', (e) => {
+            if (e.target === cropModal) {
+                cropModal.style.display = 'none';
+                if (cropper) cropper.destroy();
+            }
+        });
+    </script>
 </body>
 </html>
