@@ -85,7 +85,6 @@
             transform-origin: 0 0;
             touch-action: none;
             user-select: none;
-            /* No width/height — let natural size + transform handle it */
         }
 
         #frame {
@@ -277,6 +276,96 @@
             #crop-image-container { height: 250px; }
             .page-header h1 { font-size: 1.5rem; }
         }
+
+        /* Footer Slideshow Styles */
+        @keyframes borderGlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        @keyframes scrollFrames {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        #uttaron-full-slider {
+            width: 100%;
+            overflow: hidden;
+            padding: 12px 0;
+            background: #f9fbfd;
+            margin-top: 40px;
+        }
+        .slide-track {
+            display: flex;
+            gap: 20px;
+            animation: scrollFrames 16s linear infinite;
+            width: max-content;
+            padding: 0 20px;
+        }
+        #uttaron-full-slider:hover .slide-track {
+            animation-play-state: paused;
+        }
+        .slide-item {
+            width: 220px;
+            aspect-ratio: 1/1;
+            border-radius: 16px;
+            overflow: hidden;
+            background: white;
+            cursor: pointer;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .border-glow {
+            position: absolute;
+            inset: -4px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #006A4E, #C21807, #006A4E, #C21807);
+            background-size: 300% 300%;
+            animation: borderGlow 3s ease infinite;
+            z-index: -1;
+            pointer-events: none;
+        }
+        .slide-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        @media (max-width: 600px) {
+            .slide-item { width: 160px !important; }
+        }
+
+        /* Zoom Modal */
+        #zoom-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+        #zoomed-frame {
+            max-width: 90vw;
+            max-height: 90vh;
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(194,24,7,0.7);
+        }
+        #close-zoom {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            background: #C21807;
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
     </style>
 </head>
 <body>
@@ -342,8 +431,51 @@
         </div>
     </div>
 
+    <!-- Footer Slideshow -->
+    <div id="uttaron-full-slider">
+        <div class="slide-track">
+            <div class="slide-item" data-src="https://i.postimg.cc/tJdFq3MZ/PHOTO-frame-(4).png">
+                <div class="border-glow"></div>
+                <img src="https://i.postimg.cc/tJdFq3MZ/PHOTO-frame-(4).png" alt="Frame 4">
+            </div>
+            <div class="slide-item" data-src="https://i.postimg.cc/rsG5V1Pm/PHOTO-frame-(5).png">
+                <div class="border-glow"></div>
+                <img src="https://i.postimg.cc/rsG5V1Pm/PHOTO-frame-(5).png" alt="Frame 5">
+            </div>
+            <div class="slide-item" data-src="https://i.postimg.cc/L5kj9tb2/PHOTO-frame-(6).png">
+                <div class="border-glow"></div>
+                <img src="https://i.postimg.cc/L5kj9tb2/PHOTO-frame-(6).png" alt="Frame 6">
+            </div>
+            <div class="slide-item" data-src="https://i.postimg.cc/RhxcxsX5/PHOTO-frame-(7).png">
+                <div class="border-glow"></div>
+                <img src="https://i.postimg.cc/RhxcxsX5/PHOTO-frame-(7).png" alt="Frame 7">
+            </div>
+            <div class="slide-item" data-src="https://i.postimg.cc/xTG0tJLp/PHOTO-frame.png">
+                <div class="border-glow"></div>
+                <img src="https://i.postimg.cc/xTG0tJLp/PHOTO-frame.png" alt="Frame 1">
+            </div>
+            <div class="slide-item" data-src="https://i.postimg.cc/VL9YDrXC/PHOTO-frame-(2).png">
+                <div class="border-glow"></div>
+                <img src="https://i.postimg.cc/VL9YDrXC/PHOTO-frame-(2).png" alt="Frame 2">
+            </div>
+            <div class="slide-item" data-src="https://i.postimg.cc/zvKJm361/PHOTO-frame-(3).png">
+                <div class="border-glow"></div>
+                <img src="https://i.postimg.cc/zvKJm361/PHOTO-frame-(3).png" alt="Frame 3">
+            </div>
+        </div>
+    </div>
+
+    <!-- Zoom Modal -->
+    <div id="zoom-modal">
+        <div style="position: relative; max-width: 90vw; max-height: 90vh;">
+            <img id="zoomed-frame" src="" alt="Zoomed Frame">
+            <button id="close-zoom">×</button>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <script>
+        // === PHOTO EDITOR LOGIC ===
         const upload = document.getElementById('upload');
         const userPhoto = document.getElementById('user-photo');
         const photoWrapper = document.getElementById('photo-wrapper');
@@ -375,7 +507,6 @@
             zoomLevel.textContent = `Zoom: ${Math.round(scale * 100)}%`;
         }
 
-        // Initialize with default image
         window.addEventListener('load', () => {
             loadImage(DEFAULT_IMAGE_URL);
         });
@@ -459,7 +590,6 @@
             }
         });
 
-        // ✅ FIXED DOWNLOAD LOGIC — WORKS ON MOBILE & DESKTOP
         downloadButton.addEventListener('click', () => {
             if (!userPhoto.src || userPhoto.src === window.location.href) {
                 alert('দয়া করে প্রথমে একটি ছবি আপলোড করুন!');
@@ -477,7 +607,6 @@
             img.src = userPhoto.src;
 
             img.onload = () => {
-                // ✅ Use ACTUAL current container width (not hardcoded 400)
                 const containerWidth = photoWrapper.clientWidth;
                 const scaleToOutput = outputSize / containerWidth;
 
@@ -516,7 +645,6 @@
             link.click();
         }
 
-        // Mouse events
         photoWrapper.addEventListener('mousedown', (e) => {
             e.preventDefault();
             isDragging = true;
@@ -553,7 +681,6 @@
             updateTransform();
         });
 
-        // Touch events
         photoWrapper.addEventListener('touchstart', (e) => {
             e.preventDefault();
             if (e.touches.length === 1) {
@@ -610,6 +737,35 @@
                 if (cropper) cropper.destroy();
             }
         });
+
+        // === SLIDESHOW ZOOM LOGIC ===
+        (function() {
+            const items = document.querySelectorAll('.slide-item');
+            const modal = document.getElementById('zoom-modal');
+            const zoomImg = document.getElementById('zoomed-frame');
+            const closeBtn = document.getElementById('close-zoom');
+
+            items.forEach(item => {
+                item.addEventListener('click', () => {
+                    const src = item.getAttribute('data-src');
+                    zoomImg.src = src;
+                    modal.style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+                });
+            });
+
+            closeBtn.addEventListener('click', () => {
+                modal.style.display = 'none';
+                document.body.style.overflow = '';
+            });
+
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                    document.body.style.overflow = '';
+                }
+            });
+        })();
     </script>
 </body>
 </html>
